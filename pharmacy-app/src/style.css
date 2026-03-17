@@ -1,0 +1,116 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #f7f9fc;
+  }
+  
+  /* NAVBAR */
+  nav {
+    position: sticky;
+    top: 0;
+    background: #1EB6AF;
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 100;
+  }
+  
+  nav h2 {
+    color: #2e7d32;
+  }
+  
+  nav a {
+    text-decoration: none;
+    margin: 0 1rem;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  nav a:hover {
+    color: #2e7d32;
+  }
+  
+  /* CONTAINER */
+  .container {
+    padding: 2rem;
+  }
+  
+  /* SEARCH BAR */
+  .search-bar {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  /* CARD */
+  .card {
+    background: white;
+    padding: 1.2rem;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.12);
+  }
+  
+  .card h3 {
+    margin: 0.5rem 0;
+  }
+  
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+  }
+  
+  /* BUTTON */
+  button {
+    margin-top: 10px;
+    width: 100%;
+    padding: 0.6rem;
+    border: none;
+    border-radius: 10px;
+    background: #2e7d32;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background: #256628;
+  }
+  
+  /* CART */
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  .login_container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+  }
