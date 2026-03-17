@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Vitalis Pharmacy</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .register-container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            font-family: Arial, sans-serif;
+        }
+        .register-container h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .register-container p {
+            color: #7f8c8d;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .role-selection {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .role-btn.active {
+            background: #3498db;
+            color: white;
+        }
+        .register-form input, .register-form select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .register-form button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .register-form button:hover {
+            background: #2980b9;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .login-link a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .seller-fields {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Welcome to Vitalis</h2>
+        <p>Join our pharmacy community today</p>
+        
+        <div class="role-selection">
+            <button class="role-btn active" id="customerBtn">Register as Customer</button>
+            <button class="role-btn" id="sellerBtn">Register as Seller</button>
+        </div>
+        
+        <form class="register-form" id="registerForm">
+            <input type="text" id="fullName" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email Address" required>
+            <input type="tel" id="mobile" placeholder="Mobile Number" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+            
+            <div class="seller-fields" id="sellerFields">
+                <input type="text" id="pharmacyName" placeholder="Pharmacy Name">
+                <input type="text" id="licenseNumber" placeholder="Pharmacy License Number">
+                <input type="text" id="address" placeholder="Pharmacy Address">
+                <select id="city">
+                    <option value="">Select City</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bangalore">Bangalore</option>
+                    <option value="Chennai">Chennai</option>
+                    <option value="Kolkata">Kolkata</option>
+                </select>
+            </div>
+            
+            <button type="submit">Create Account</button>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="index.html?login=true">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        const customerBtn = document.getElementById('customerBtn');
+        const sellerBtn = document.getElementById('sellerBtn');
+        const sellerFields = document.getElementById('sellerFields');
+
+        customerBtn.addEventListener('click', () => {
+            customerBtn.classList.add('active');
+            sellerBtn.classList.remove('active');
+            sellerFields.style.display = 'none';
+        });
+
+        sellerBtn.addEventListener('click', () => {
+            sellerBtn.classList.add('active');
+            customerBtn.classList.remove('active');
+            sellerFields.style.display = 'block';
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            // Here you would typically send data to server
+            alert('Registration successful! Please login.');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

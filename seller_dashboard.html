@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitalis | Seller Dashboard</title>
+    <link rel="stylesheet" href="seller_dashboard.css">
+   
+</head>
+<body>
+    <div class="seller-container">
+        <aside class="sidebar">
+            <h2>Vitalis Seller</h2>
+            <ul class="sidebar-menu">
+                <li><a href="#">💊 Add Medicine</a></li>
+                <li><a href="#">📦 Manage Inventory</a></li>
+                <li><a href="#">⚠️ Low Stock Alerts</a></li>
+                <li><a href="#">📋 Pending Approvals</a></li>
+                <li><a href="#">📈 Sales Report</a></li>
+                <li><a href="#">⚙️ Settings</a></li>
+                <li style="color: #e74c3c;"><a href="index.html" style="color: inherit; text-decoration: none;">Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1>Seller Dashboard</h1>
+                <p>Welcome back, Seller</p>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <h3>Low Stock Alerts ⚠️</h3>
+                    <p class="alert">3 Medicines need restocking</p>
+                    <button class="btn">View Details</button>
+                </div>
+                <div class="stat-card">
+                    <h3>Medicines Added</h3>
+                    <p>15 New medicines this week</p>
+                    <button class="btn">Add More</button>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Approvals</h3>
+                    <p>5 Medicines awaiting admin approval</p>
+                    <button class="btn">Check Status</button>
+                </div>
+            </section>
+
+            <section style="margin-top: 30px;">
+                <h2>Quick Actions</h2>
+                <button class="btn" style="margin-right: 10px;">Add New Medicine</button>
+                <button class="btn" style="margin-right: 10px;">Update Stock</button>
+                <button class="btn">Generate Report</button>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

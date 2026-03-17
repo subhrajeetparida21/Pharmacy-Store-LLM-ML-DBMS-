@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitalis | Admin Dashboard</title>
+    <link rel="stylesheet" href="admin_dashboard.css"> 
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="sidebar">
+            <h2>Vitalis Admin</h2>
+            <ul class="sidebar-menu">
+                <li><a href="#">👥 Manage Sellers</a></li>
+                <li><a href="#">✅ Approve Medicines</a></li>
+                <li><a href="#">📦 Inventory Management</a></li>
+                <li><a href="#">📋 Customer Orders</a></li>
+                <li><a href="#">📈 ML Demand Prediction</a></li>
+                <li><a href="#">⚙️ Settings</a></li>
+                <li style="color: #e74c3c;"><a href="index.html" style="color: inherit; text-decoration: none;">Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1>Pharmacy Overview</h1>
+                <p>Welcome back, Admin</p>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Sellers 👥</h3>
+                    <p>8 Active Sellers</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Medicines Pending Approval ✅</h3>
+                    <p class="alert">12 New medicines to review</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Low Stock Alerts ⚠️</h3>
+                    <p class="alert">5 Medicines need restocking</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Orders</h3>
+                    <p>15 New Orders</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Seller Performance</h3>
+                    <p>Top seller: John Doe (150 sales)</p>
+                </div>
+                <div class="stat-card">
+                    <h3>ML Prediction</h3>
+                    <p>Demand for <b>Paracetamol</b> expected to rise by 20% next week.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

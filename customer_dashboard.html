@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitalis | My Account</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="customer_dashboard.css">
+</head>
+<body>
+
+    <header style="background: white; padding: 15px 50px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 1.5rem; font-weight: bold; color: #2c3e50;">VITALIS <small style="font-size: 0.8rem; color: var(--primary-blue);">Customer</small></span>
+        <button onclick="location.href='index.html'" style="background:none; border: 1px solid #ccc; padding: 5px 15px; border-radius: 20px; cursor: pointer;">Logout</button>
+    </header>
+
+    <div class="customer-container">
+        <div class="dashboard-grid">
+            <aside class="user-nav">
+                <h3>Welcome, Sourav!</h3>
+                <ul class="nav-links">
+                    <li class="active">📍 Track Orders</li>
+                    <li><a href="#">💊 Browse Medicines</a></li>
+                    <li><a href="#">📋 Order History</a></li>
+                    <li><a href="#">💳 Payment Methods</a></li>
+                    <li><a href="#">⚙️ Profile Settings</a></li>
+                </ul>
+            </aside>
+
+            <main class="content-area">
+                <h2>Current Order Tracking</h2>
+                
+                <div class="order-status">
+                    <div class="status-header">
+                        <strong>Order #VIT-99281</strong>
+                        <span style="color: var(--primary-blue);">In Transit</span>
+                    </div>
+                    
+                    <div class="tracking-bar">
+                        <div class="progress"></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #666;">
+                        <span>Order Placed</span>
+                        <span>Packed</span>
+                        <span style="color: var(--primary-blue); font-weight: bold;">Out for Delivery</span>
+                        <span>Delivered</span>
+                    </div>
+
+                    <div class="delivery-contact">
+                        <strong>📞 Delivery Partner Contact:</strong>
+                        <p>Ravi Kumar (+91 98765-43210) is currently 2.5km away.</p>
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+                <h2>Quick Actions</h2>
+                <div style="display: flex; gap: 15px;">
+                    <button class="btn-browse" onclick="location.href='index.html'">🔍 Search New Medicine</button>
+                    <button style="padding: 10px 20px; border: 1px solid #ddd; border-radius: 5px; background: white; cursor: pointer;">View Lab Reports</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+</body>
+</html>

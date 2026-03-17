@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Verification - Vitalis Pharmacy</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .security-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .security-container h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .security-container p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .security-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .login-options {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .login-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .otp-section {
+            display: none;
+        }
+        .security-form button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .security-form button:hover {
+            background: #2980b9;
+        }
+        .send-otp-btn {
+            background: #2ecc71;
+        }
+        .send-otp-btn:hover {
+            background: #27ae60;
+        }
+        .forgot-password {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .forgot-password a {
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <h3>Welcome to Vitalis</h3>
+        <p>Secure login for your account</p>
+        <form class="security-form" id="securityForm">
+            <input type="text" id="contact" placeholder="Email or Mobile Number" required>
+            
+            <div class="login-options">
+                <label><input type="radio" name="loginMethod" value="password" checked> Login with Password</label>
+                <label><input type="radio" name="loginMethod" value="otp"> Login with OTP</label>
+            </div>
+            
+            <div id="passwordSection">
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </div>
+            
+            <div id="otpSection" style="display: none;">
+                <button type="button" class="send-otp-btn" id="sendOtpBtn">Send OTP</button>
+                <input type="text" id="otp" placeholder="Enter OTP" maxlength="6" style="display: none;">
+                <button type="submit" id="verifyOtpBtn" style="display: none;">Verify OTP</button>
+            </div>
+        </form>
+        
+        <div class="forgot-password">
+            <a href="forgot_password.html">Forgot Password?</a>
+        </div>
+        
+        <a href="index.html" class="back-link">Back to Home</a>
+    </div>
+
+    <script src="security.js"></script>
+</body>
+</html>

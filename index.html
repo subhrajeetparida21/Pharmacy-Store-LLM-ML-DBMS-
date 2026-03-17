@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitalis Pharmacy | Full Service</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="index_modal.css">
+</head>
+<body>
+    <header>
+        <div class="main-header">
+            <div class="logo-area">
+                <span class="logo">VITALIS</span>
+                <div class="location-picker">
+                    <span class="icon">📍</span>
+                    <div>
+                        <small>Delivery Address</small>
+                        <strong>Select Address ▾</strong>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <a href="#" class="active">Buy Medicines</a>
+                <a href="#">Find Doctors</a>
+                <a href="#">Lab Tests</a>
+                <a href="#">Circle Membership</a>
+                <a href="#">Health Records</a>
+            </nav>
+
+            <div class="header-right">
+                <div class="cart-icon">🛒 <span class="badge">0</span></div>
+                <button class="login-btn" id="mainLoginBtn">Login</button>
+            </div>
+
+            <div id="loginOverlay" class="login-overlay"></div>
+            <div id="loginModal" class="login-modal">
+                <h3>Welcome to Vitalis</h3>
+                <p>For security reasons, please verify your identity</p>
+                <div class="modal-buttons">
+                    <a href="security_verification.html?type=customer" class="login-opt cust">Login as Customer</a>
+                    <a href="security_verification.html?type=seller" class="login-opt seller">Login as Seller</a>
+                    <a href="security_verification.html?type=admin" class="login-opt adm">Login as Admin</a>
+                </div>
+                <p style="font-size: 14px; color: #7f8c8d; margin: 20px 0 10px;">New to Vitalis? <a href="registration.html" style="color: #3498db; text-decoration: none; font-weight: bold;">Register first</a></p>
+                <button class="close-modal" id="closeModal">Cancel</button>
+            </div>
+
+        </div>
+
+        <nav class="sub-nav">
+            <a href="#">Vitalis Products</a>
+            <a href="#">Baby Care</a>
+            <a href="#">Nutritional Drinks</a>
+            <a href="#">Women Care</a>
+            <a href="#">Personal Care</a>
+            <a href="#">Ayurveda</a>
+            <a href="#">Health Devices</a>
+            <a href="#">Home Essentials</a>
+            <a href="#">Health Condition</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero-banner">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search Medicines, Health Products and more...">
+            </div>
+        </section>
+
+        <section class="feature-grid" id="feature-section"></section>
+
+        <section class="browse-section">
+            <div class="section-header">
+                <h2>Browse by Health Conditions</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            <div class="condition-grid" id="condition-grid"></div>
+        </section>
+    </main>
+
+    <div class="whatsapp-float">💬</div>
+    <script src="index_data.js"></script>
+    <script src="index.js"></script>
+    <script src="index_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+:root {
+    --primary-purple: #8e44ad;
+    --dark-purple: #7d3c98;
+    --accent-pink: #e91e63;
+    --light-bg: #f4f7f6;
+    --text-dark: #2c3e50;
+}
+
+/* Layout */
+.seller-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: var(--primary-purple);
+    color: white;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    color: var(--accent-pink);
+    font-size: 1.3rem;
+    margin-bottom: 30px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    padding: 12px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: 0.3s;
+}
+
+.sidebar-menu li:hover {
+    background: var(--dark-purple);
+    color: var(--accent-pink);
+}
+
+.sidebar-menu a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background: var(--light-bg);
+}
+
+header h1 {
+    margin: 0;
+    color: var(--text-dark);
+}
+
+header p {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+/* Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Cards */
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: 0.3s;
+    position: relative;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Alert */
+.alert {
+    color: var(--accent-pink);
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+    background: var(--primary-purple);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: var(--dark-purple);
+}
+
+/* Highlight important cards */
+.stat-card:nth-child(1) {
+    border-left: 5px solid #e74c3c;
+}
+
+.stat-card:nth-child(3) {
+    border-left: 5px solid var(--accent-pink);
+}
+
+/* Quick Actions */
+section h2 {
+    color: var(--text-dark);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .seller-container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
