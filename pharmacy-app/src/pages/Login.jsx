@@ -1,42 +1,28 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-function Login({ setUser }) {
-  const [role, setRole] = useState("customer");
+export default function Login({ setUser }) {
   const [name, setName] = useState("");
+  const [role, setRole] = useState("customer");
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (!name) {
-      alert("Enter name");
-      return;
-    }
+  const login = () => {
+    const user = { name, role };
+    localStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
 
-    const userData = { name, role };
-
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+    role === "admin" ? navigate("/admin") : navigate("/");
   };
 
   return (
-    <div className="login_container">
+    <div className="container">
       <h2>Login</h2>
-
-      <input
-        className="search-bar"
-        placeholder="Enter your name"
-        onChange={(e) => setName(e.target.value)}
-      />
-
-      <select
-        className="search-bar"
-        onChange={(e) => setRole(e.target.value)}
-      >
+      <input placeholder="Name" onChange={e=>setName(e.target.value)} />
+      <select onChange={e=>setRole(e.target.value)}>
         <option value="customer">Customer</option>
         <option value="admin">Admin</option>
       </select>
-
-      <button onClick={handleLogin}>Login</button>
+      <button onClick={login}>Login</button>
     </div>
   );
 }
-
-export default Login;

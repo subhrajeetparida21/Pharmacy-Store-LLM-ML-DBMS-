@@ -1,68 +1,86 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { BrowserRouter,Routes,Route } from "react-router-dom";
+import { useState,useEffect } from "react";
 
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Inventory from "./pages/Inventory";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 import AdminDashboard from "./pages/AdminDashboard";
-import Login from "./pages/Login";
-import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-  const [cart, setCart] = useState([]);
-  const [user, setUser] = useState(null);
+export default function App(){
 
-  // Load user from localStorage
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) setUser(storedUser);
-  }, []);
+  const [user,setUser]=useState(null);
 
-  const addToCart = (med) => {
-    if (med.stock <= 0) {
-      alert("Out of stock!");
-      return;
-    }
+  const [medicines,setMedicines]=useState([
+    {id:1,name:"Paracetamol",price:20,stock:5}
+  ]);
 
-    setCart([...cart, med]);
-  };
+  const [cart,setCart]=useState([]);
+  const [orders,setOrders]=useState([]);
 
-  return (
+  const [deliveryPeople,setDeliveryPeople]=useState([
+    {id:1,name:"Ravi",orders:0,phone:"9876543210"}
+  ]);
+
+  useEffect(()=>{
+    const u=JSON.parse(localStorage.getItem("user"));
+    if(u) setUser(u);
+  },[]);
+
+  const addToCart=(m)=>setCart([...cart,m]);
+
+  return(
     <BrowserRouter>
-      <Navbar user={user} setUser={setUser} />
+      <Navbar user={user} setUser={setUser}/>
 
       <Routes>
-
-        <Route path="/Login" element={<Login setUser={setUser} />} />
+        <Route path="/login" element={<Login setUser={setUser}/>}/>
 
         <Route path="/" element={
           <ProtectedRoute user={user}>
-            <Home />
+            <Home/>
           </ProtectedRoute>
-        } />
+        }/>
 
-        <Route path="/Inventory" element={
+        <Route path="/inventory" element={
           <ProtectedRoute user={user}>
-            <Inventory addToCart={addToCart} />
+            <Inventory medicines={medicines} addToCart={addToCart}/>
           </ProtectedRoute>
-        } />
+        }/>
 
-        <Route path="/Cart" element={
+        <Route path="/cart" element={
           <ProtectedRoute user={user}>
-            <Cart cart={cart} />
+            <Cart cart={cart}
+              medicines={medicines}
+              setMedicines={setMedicines}
+              setOrders={setOrders}
+              deliveryPeople={deliveryPeople}
+              setDeliveryPeople={setDeliveryPeople}/>
           </ProtectedRoute>
-        } />
+        }/>
 
-        <Route path="/AdminDashboard" element={
+        <Route path="/orders" element={
+          <ProtectedRoute user={user}>
+            <Orders orders={orders}/>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/admin" element={
           <ProtectedRoute user={user} role="admin">
-            <AdminDashboard />
+            <AdminDashboard
+              medicines={medicines}
+              setMedicines={setMedicines}
+              deliveryPeople={deliveryPeople}
+              setDeliveryPeople={setDeliveryPeople}
+              orders={orders}
+            />
           </ProtectedRoute>
-        } />
-
+        }/>
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default App;

@@ -1,25 +1,55 @@
-import { medicines } from "../data/data";
+import { useState } from "react";
 
-function AdminDashboard() {
+export default function AdminDashboard({
+  medicines,setMedicines,
+  deliveryPeople,setDeliveryPeople,
+  orders
+}) {
+
+  const [med,setMed]=useState("");
+
+  const addMed=()=>{
+    setMedicines([...medicines,{
+      id:Date.now(),name:med,price:20,stock:5
+    }]);
+  };
+
+  const restock=(id)=>{
+    setMedicines(medicines.map(m=>
+      m.id===id?{...m,stock:m.stock+20}:m
+    ));
+    alert("Supplier order placed");
+  };
+
   return (
     <div className="container">
       <h2>Admin Dashboard</h2>
 
-      {medicines.map(m => (
-        <div key={m.id} className="card">
-          <h3>{m.name}</h3>
-          <p>Stock: {m.stock}</p>
-          <p>Expiry: {m.expiry}</p>
+      <input placeholder="New medicine"
+        onChange={e=>setMed(e.target.value)} />
+      <button onClick={addMed}>Add</button>
 
-          {m.stock < 10 && (
-            <div className="alert">
-              Reorder Required ⚠
-            </div>
-          )}
+      <div className="grid">
+        {medicines.map(m=>(
+          <div className="card" key={m.id}>
+            {m.name}
+            <p>Stock:{m.stock}</p>
+
+            {m.stock<5 && <div className="alert">Low Stock</div>}
+
+            <button onClick={()=>restock(m.id)}>
+              Order from Supplier
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <h3>Orders</h3>
+      {orders.map((o,i)=>(
+        <div key={i} className="card">
+          {o.item.name} → {o.status}
         </div>
       ))}
     </div>
   );
 }
-
-export default AdminDashboard;

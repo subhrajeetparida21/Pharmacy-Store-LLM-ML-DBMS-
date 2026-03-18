@@ -1,40 +1,27 @@
 import { useState } from "react";
-import { medicines } from "../data/data";
 
-function Inventory({ addToCart }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = medicines.filter(m =>
-    m.name.toLowerCase().includes(search.toLowerCase())
-  );
+export default function Inventory({ medicines, addToCart }) {
+  const [search,setSearch]=useState("");
 
   return (
     <div className="container">
-      <input
-        className="search-bar"
-        placeholder="Search medicines..."
-        onChange={(e) => setSearch(e.target.value)}
+      <input className="search"
+        placeholder="Search"
+        onChange={e=>setSearch(e.target.value)}
       />
 
       <div className="grid">
-        {filtered.map(med => (
-          <div className="card" key={med.id}>
-            <h3>{med.name}</h3>
-            <p>₹{med.price}</p>
-            <p>Stock: {med.stock}</p>
-
-            {med.stock < 10 && (
-              <div className="alert">Low Stock ⚠</div>
-            )}
-
-            <button onClick={() => addToCart(med)}>
-              Add to Cart
-            </button>
+        {medicines.filter(m=>m.name.toLowerCase()
+          .includes(search.toLowerCase()))
+          .map(m=>(
+          <div className="card" key={m.id}>
+            <img src="https://via.placeholder.com/150" />
+            <h3>{m.name}</h3>
+            <p>₹{m.price}</p>
+            <button onClick={()=>addToCart(m)}>Add</button>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-export default Inventory;
