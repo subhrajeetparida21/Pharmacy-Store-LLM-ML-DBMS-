@@ -6,6 +6,7 @@ export default function Cart({
   medicines,
   setMedicines,
   setOrders,
+  orders,
   deliveryPeople,
   setDeliveryPeople,
   addToCart
@@ -30,12 +31,10 @@ export default function Cart({
 
   const placeOrder = () => {
     if (cart.length === 0) return;
-
-    // 1. Find the delivery person with the least orders (Balanced assignment)
+  
     const sortedPeople = [...deliveryPeople].sort((a, b) => a.orders - b.orders);
     const assigned = { ...sortedPeople[0], orders: sortedPeople[0].orders + 1 };
-
-    // 2. Check stock and update medicine quantities safely
+  
     let stockError = false;
     const updatedMedicines = medicines.map(med => {
       const cartItem = cart.find(c => c.id === med.id);
@@ -48,10 +47,10 @@ export default function Cart({
       }
       return med;
     });
-
+  
     if (stockError) return;
-
-    // 3. Create a single new order object
+  
+    // ✅ CREATE ORDER FIRST
     const newOrder = {
       id: Date.now(),
       items: [...cart],
@@ -60,16 +59,43 @@ export default function Cart({
       deliveryPartner: assigned.name,
       address: addresses.find(a => a.id === selectedAddress)
     };
-
-    // 4. Update all states
-    setOrders(prev => [newOrder, ...prev]);
+  
+    // ✅ SAVE ORDER
+    setOrders(prev => {
+      const updated = [newOrder, ...prev];
+      localStorage.setItem("orders", JSON.stringify(updated));
+      return updated;
+    });
+  
     setMedicines(updatedMedicines);
-    setDeliveryPeople(prev => 
+    setDeliveryPeople(prev =>
       prev.map(p => p.id === assigned.id ? assigned : p)
     );
-    setCart([]); // Clear the cart after order
-    
+  
+    setCart([]);
+  
     alert(`Order placed successfully! Assigned to ${assigned.name}`);
+  
+    // ✅ NOW timeouts will work correctly
+    setTimeout(() => {
+      setOrders(prev => {
+        const updated = prev.map(o =>
+          o.id === newOrder.id ? { ...o, status: "Out for Delivery" } : o
+        );
+        localStorage.setItem("orders", JSON.stringify(updated));
+        return updated;
+      });
+    }, 5000);
+  
+    setTimeout(() => {
+      setOrders(prev => {
+        const updated = prev.map(o =>
+          o.id === newOrder.id ? { ...o, status: "Delivered" } : o
+        );
+        localStorage.setItem("orders", JSON.stringify(updated));
+        return updated;
+      });
+    }, 10000);
   };
 
   // --- CALCULATIONS ---

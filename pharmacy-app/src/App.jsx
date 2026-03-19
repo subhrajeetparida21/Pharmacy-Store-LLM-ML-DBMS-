@@ -28,7 +28,7 @@ function AppContent() {
     return stored ? JSON.parse(stored) : [];
   });
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState(JSON.parse(localStorage.getItem("orders")) || []);
 
   const [deliveryPeople, setDeliveryPeople] = useState([
     { id: 1, name: "Ravi", orders: 0, phone: "9876543210" }
@@ -134,6 +134,7 @@ function AppContent() {
                 medicines={medicines}
                 setMedicines={setMedicines}
                 setOrders={setOrders}
+                orders = {orders}
                 deliveryPeople={deliveryPeople}
                 setDeliveryPeople={setDeliveryPeople}
                 addToCart={addToCart}

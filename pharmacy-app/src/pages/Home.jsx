@@ -122,7 +122,7 @@ export default function Home({ cart, addToCart }) {
                 transform: addedId === med.id ? 'scale(1.1)' : 'scale(1)'
               }}
             >
-              {addedId === med.id ? "✅ Added" : "Add to Cart"}
+              {addedId === med.id ? " Added" : "Add to Cart"}
             </button>
           </div>
         ))}
