@@ -10,10 +10,12 @@ export default function Profile({ user, setUser }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [photoPreview, setPhotoPreview] = useState(null);
 
   useEffect(() => {
-    // Load admin data from localStorage
+    // Load admin data from localStorage with priority
     const loadAdminData = () => {
+      // First try to load from adminProfile (most recent profile data)
       const savedProfile = localStorage.getItem("adminProfile");
       if (savedProfile) {
         const profile = JSON.parse(savedProfile);
@@ -21,12 +23,14 @@ export default function Profile({ user, setUser }) {
         setEmail(profile.email || "");
         setPhone(profile.phone || "");
         setAdminPhoto(profile.profilePhoto || null);
+        setPhotoPreview(profile.profilePhoto || null);
         if (profile.fullName) {
           setAdminName(profile.fullName.split(" ")[0]);
         }
         return;
       }
 
+      // If no adminProfile, try to load from user data
       const currentUser = localStorage.getItem("user");
       if (currentUser) {
         const u = JSON.parse(currentUser);
@@ -35,14 +39,96 @@ export default function Profile({ user, setUser }) {
         setPhone(u.phone || "");
         if (u.profilePhoto) {
           setAdminPhoto(u.profilePhoto);
+          setPhotoPreview(u.profilePhoto);
         }
         if (u.name) {
           setAdminName(u.name.split(" ")[0]);
         }
       }
+      
+      // If still no photo, check for persisted profile photo
+      const persistedPhoto = localStorage.getItem("persistedProfilePhoto");
+      if (persistedPhoto && !adminPhoto) {
+        setAdminPhoto(persistedPhoto);
+        setPhotoPreview(persistedPhoto);
+      }
     };
+    
     loadAdminData();
+    
+    // Add event listener for storage changes (in case profile is updated from another tab)
+    const handleStorageChange = (e) => {
+      if (e.key === "adminProfile" || e.key === "user" || e.key === "persistedProfilePhoto") {
+        loadAdminData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size should be less than 5MB");
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        alert("Please upload an image file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setAdminPhoto(base64String);
+        setPhotoPreview(base64String);
+        
+        // Immediately save the photo to persistent storage
+        localStorage.setItem("persistedProfilePhoto", base64String);
+        
+        // Also update any open profile data
+        const currentAdminProfile = localStorage.getItem("adminProfile");
+        if (currentAdminProfile) {
+          const profile = JSON.parse(currentAdminProfile);
+          profile.profilePhoto = base64String;
+          localStorage.setItem("adminProfile", JSON.stringify(profile));
+        }
+        
+        const currentUser = localStorage.getItem("user");
+        if (currentUser) {
+          const userData = JSON.parse(currentUser);
+          userData.profilePhoto = base64String;
+          localStorage.setItem("user", JSON.stringify(userData));
+        }
+        
+        // Update navbar logo in real-time
+        const updateNavbarLogo = () => {
+          const navbarLogo = document.querySelector('.navbar-logo img, .logo img, .user-avatar img, .sidebar-logo-img');
+          if (navbarLogo) {
+            navbarLogo.src = base64String;
+          }
+          
+          // Also update any user avatar elements
+          const userAvatars = document.querySelectorAll('.user-avatar, .profile-image, .topbar-avatar');
+          userAvatars.forEach(avatar => {
+            if (avatar.tagName === 'IMG') {
+              avatar.src = base64String;
+            } else if (avatar.style.backgroundImage) {
+              avatar.style.backgroundImage = `url(${base64String})`;
+            }
+          });
+        };
+        
+        setTimeout(updateNavbarLogo, 100);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSaveProfile = () => {
     const profileData = {
@@ -50,8 +136,48 @@ export default function Profile({ user, setUser }) {
       email,
       phone,
       profilePhoto: adminPhoto,
+      lastUpdated: new Date().toISOString()
     };
+    
+    // Save to adminProfile (main profile storage)
     localStorage.setItem("adminProfile", JSON.stringify(profileData));
+    
+    // Save to persistent photo storage separately
+    if (adminPhoto) {
+      localStorage.setItem("persistedProfilePhoto", adminPhoto);
+    }
+    
+    // Update the user object in localStorage if it exists
+    const currentUser = localStorage.getItem("user");
+    if (currentUser) {
+      const userData = JSON.parse(currentUser);
+      userData.name = fullName;
+      userData.email = email;
+      userData.phone = phone;
+      userData.profilePhoto = adminPhoto;
+      localStorage.setItem("user", JSON.stringify(userData));
+      
+      // Update parent component state if setUser is provided
+      if (setUser) {
+        setUser(userData);
+      }
+    } else {
+      // If no user exists, create one
+      const newUserData = {
+        name: fullName,
+        email: email,
+        phone: phone,
+        profilePhoto: adminPhoto,
+        isLoggedIn: false
+      };
+      localStorage.setItem("user", JSON.stringify(newUserData));
+    }
+    
+    // Update admin name for sidebar display
+    if (fullName) {
+      setAdminName(fullName.split(" ")[0]);
+    }
+    
     setSavedMessage("✅ Profile saved successfully!");
     setTimeout(() => setSavedMessage(""), 3000);
   };
@@ -62,9 +188,30 @@ export default function Profile({ user, setUser }) {
 
   return (
     <div className="wrapper">
-      {/* Sidebar */}
+      {/* Sidebar with updated logo section */}
       <div className="sidebar">
-        <h2 className="logo">💊 Pharmacy</h2>
+        <div className="sidebar-header" style={{ textAlign: "center", marginBottom: "20px" }}>
+          <div className="navbar-logo" style={{ marginBottom: "10px" }}>
+            <img 
+              src={adminPhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"} 
+              alt="Logo" 
+              className="sidebar-logo-img"
+              style={{ 
+                width: "50px", 
+                height: "50px", 
+                borderRadius: "50%", 
+                objectFit: "cover",
+                marginBottom: "10px"
+              }} 
+            />
+          </div>
+          <h2 className="logo">💊 Pharmacy</h2>
+          {adminName && (
+            <p style={{ color: "#fff", marginTop: "10px", fontSize: "14px" }}>
+              Welcome, {adminName}!
+            </p>
+          )}
+        </div>
 
         <p className="section">PROFILE</p>
         <button className="active">My Profile</button>
@@ -73,9 +220,24 @@ export default function Profile({ user, setUser }) {
 
       {/* Main */}
       <div className="main">
-        {/* Topbar */}
+        {/* Topbar with user avatar */}
         <div className="topbar">
           <h2>👤 User Profile</h2>
+          <div className="user-info" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <img 
+              src={adminPhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"} 
+              alt="User Avatar" 
+              className="topbar-avatar"
+              style={{ 
+                width: "40px", 
+                height: "40px", 
+                borderRadius: "50%", 
+                objectFit: "cover",
+                border: "2px solid #0ea5e9"
+              }} 
+            />
+            <span style={{ fontWeight: "500" }}>{adminName || "User"}</span>
+          </div>
         </div>
 
         {/* Profile Card */}
@@ -84,13 +246,54 @@ export default function Profile({ user, setUser }) {
 
           {savedMessage && <div style={{ background: "#dcfce7", color: "#166534", padding: "12px", borderRadius: "8px", marginBottom: "20px", textAlign: "center" }}>{savedMessage}</div>}
 
-          {/* Profile Photo */}
+          {/* Profile Photo Upload */}
           <div style={{ textAlign: "center", marginBottom: "30px" }}>
-            <img
-              src={adminPhoto || "https://i.pravatar.cc/150"}
-              alt="Profile"
-              style={{ width: "120px", height: "120px", borderRadius: "50%", border: "3px solid #0ea5e9", objectFit: "cover" }}
+            <div style={{ position: "relative", display: "inline-block" }}>
+              <img
+                src={photoPreview || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"}
+                alt="Profile"
+                style={{ 
+                  width: "120px", 
+                  height: "120px", 
+                  borderRadius: "50%", 
+                  border: "3px solid #0ea5e9", 
+                  objectFit: "cover",
+                  cursor: "pointer"
+                }}
+                onClick={() => document.getElementById('photoUpload').click()}
+              />
+              <button
+                onClick={() => document.getElementById('photoUpload').click()}
+                style={{
+                  position: "absolute",
+                  bottom: "5px",
+                  right: "5px",
+                  background: "#0ea5e9",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "32px",
+                  height: "32px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "16px"
+                }}
+              >
+                📷
+              </button>
+            </div>
+            <input
+              type="file"
+              id="photoUpload"
+              accept="image/*"
+              onChange={handlePhotoUpload}
+              style={{ display: "none" }}
             />
+            <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
+              Click the camera icon to upload a photo
+            </p>
           </div>
 
           {/* Form Fields */}
@@ -168,6 +371,8 @@ export default function Profile({ user, setUser }) {
                 cursor: "pointer",
                 transition: "0.2s",
               }}
+              onMouseEnter={(e) => e.target.style.background = "#0c9bdf"}
+              onMouseLeave={(e) => e.target.style.background = "#0ea5e9"}
             >
               💾 Save Profile
             </button>
@@ -183,6 +388,8 @@ export default function Profile({ user, setUser }) {
                 cursor: "pointer",
                 transition: "0.2s",
               }}
+              onMouseEnter={(e) => e.target.style.background = "#cbd5e0"}
+              onMouseLeave={(e) => e.target.style.background = "#e2e8f0"}
             >
               ← Back
             </button>

@@ -4,8 +4,12 @@ import { useState, useEffect, useRef } from "react";
 export default function Navbar({ user, setUser, cart = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [adminName, setAdminName] = useState("");
 
   const logout = () => {
+    // Don't clear adminProfile or persistedProfilePhoto
+    // Only clear session-related data
     localStorage.removeItem("user");
     setUser(null);
 
@@ -16,6 +20,56 @@ export default function Navbar({ user, setUser, cart = [] }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Load profile photo and admin name from localStorage
+  useEffect(() => {
+    const loadProfileData = () => {
+      // Load profile photo
+      let photo = null;
+      
+      // First check if user object has profilePhoto
+      if (user?.profilePhoto) {
+        photo = user.profilePhoto;
+      }
+      
+      // Then check adminProfile
+      if (!photo) {
+        const adminProfile = localStorage.getItem("adminProfile");
+        if (adminProfile) {
+          const profile = JSON.parse(adminProfile);
+          photo = profile.profilePhoto;
+          // Also get admin name
+          if (profile.fullName) {
+            setAdminName(profile.fullName.split(" ")[0]);
+          }
+        }
+      }
+      
+      // Finally check persistedProfilePhoto
+      if (!photo) {
+        photo = localStorage.getItem("persistedProfilePhoto");
+      }
+      
+      setProfilePhoto(photo);
+      
+      // Load admin name from user object if not already set
+      if (!adminName && user?.name) {
+        setAdminName(user.name.split(" ")[0]);
+      }
+    };
+    
+    loadProfileData();
+    
+    // Listen for storage changes (when profile is updated)
+    const handleStorageChange = (e) => {
+      if (e.key === "adminProfile" || e.key === "persistedProfilePhoto" || e.key === "user") {
+        loadProfileData();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [user, adminName]);
 
   // Navigate to admin dashboard
   const goToAdminDashboard = () => {
@@ -47,10 +101,11 @@ export default function Navbar({ user, setUser, cart = [] }) {
   // Check if user is admin
   const isAdmin = user?.isAdmin === true || user?.role === "admin";
 
-  // Function to check if link is active
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
+  // Get the profile photo to display
+  const displayPhoto = profilePhoto || user?.profilePhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150";
+  
+  // Get the welcome name
+  const welcomeName = adminName || (user?.name ? user.name.split(" ")[0] : "User");
 
   return (
     <>
@@ -201,26 +256,63 @@ export default function Navbar({ user, setUser, cart = [] }) {
           margin: 0 8px;
         }
 
-        .admin-profile {
+        .right-section {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 20px;
           margin-right: 75px;
         }
 
-        .admin-avatar {
+        .profile-section {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          cursor: pointer;
+          padding: 5px 12px;
+          border-radius: 40px;
+          transition: all 0.2s ease;
+          background: rgba(14, 165, 233, 0.05);
+        }
+
+        .profile-section:hover {
+          background: rgba(14, 165, 233, 0.1);
+          transform: translateY(-1px);
+        }
+
+        .profile-avatar {
           width: 40px;
           height: 40px;
           border-radius: 50%;
           object-fit: cover;
-          border: 2px solid #e2e8f0;
-          cursor: pointer;
+          border: 2px solid #0ea5e9;
           transition: 0.2s;
         }
 
-        .admin-avatar:hover {
-          border-color: #0ea5e9;
-          transform: scale(1.05);
+        .profile-info {
+          text-align: right;
+        }
+
+        .welcome-text {
+          font-size: 14px;
+          font-weight: 500;
+          color: #64748b;
+          margin: 0;
+          line-height: 1.2;
+        }
+
+        .user-name {
+          font-size: 16px;
+          font-weight: 700;
+          color: #0F4454;
+          margin: 0;
+          line-height: 1.3;
+        }
+
+        .user-role {
+          font-size: 11px;
+          color: #0ea5e9;
+          margin: 0;
+          font-weight: 500;
         }
 
         .logout-btn-nav {
@@ -241,6 +333,42 @@ export default function Navbar({ user, setUser, cart = [] }) {
           transform: translateY(-1px);
           box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
         }
+
+        .logo-section {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .logo-icon {
+          font-size: 28px;
+        }
+
+        .logo-text {
+          font-size: 22px;
+          font-weight: 700;
+          background: linear-gradient(135deg, #0F4454 0%, #0ea5e9 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin: 0;
+        }
+
+        .left-section {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        @keyframes photoUpdate {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+
+        .profile-avatar-updated {
+          animation: photoUpdate 0.3s ease;
+        }
       `}</style>
 
       <nav style={{
@@ -258,31 +386,33 @@ export default function Navbar({ user, setUser, cart = [] }) {
         zIndex: 1000,
         width: "100%"
       }}>
-        {/* Left Section - Logo, Admin Badge, and Navigation Items */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between", width: "100%" }}>
-          {/* Logo */}
-          <div style={{display: "flex"}}>
-            <h2 style={{ color: "#0F4454", margin: 0, fontSize: "20px" }}>💊 PharmaCare</h2>
-
-            {/* Admin Badge with Separator */}
-            {isAdmin && (
-              <>
-                <div className="separator"></div>
-                <span
-                  className="admin-badge clickable"
-                  onClick={goToAdminDashboard}
-                  style={{ cursor: "pointer" }}
-                  title="Click to go to Admin Dashboard"
-                >
-                  👑 Admin Panel
-                </span>
-              </>
-            )}
+        {/* Left Section - Logo and Admin Badge */}
+        <div className="left-section">
+          <div className="logo-section">
+            <span className="logo-icon">💊</span>
+            <h2 className="logo-text">PharmaCare</h2>
           </div>
-
-          {/* Navigation Items */}
+          
+          {/* Admin Badge - Now on left side after logo */}
           {isAdmin && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "20px" }}>
+            <>
+              <div className="separator"></div>
+              <span
+                className="admin-badge clickable"
+                onClick={goToAdminDashboard}
+                style={{ cursor: "pointer" }}
+                title="Click to go to Admin Dashboard"
+              >
+                👑 Admin Panel
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Center Section - Navigation Items */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {isAdmin && (
+            <>
               {/* Analytics */}
               <NavLink to="/admin/analytics" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span>📊</span>
@@ -304,7 +434,7 @@ export default function Navbar({ user, setUser, cart = [] }) {
                 <span>AI Insights</span>
               </NavLink>
 
-              {/* Order from Seller - NEW OPTION */}
+              {/* Order from Seller */}
               <NavLink to="/admin/order-from-seller" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span>📦</span>
                 <span>Order from Seller</span>
@@ -328,12 +458,11 @@ export default function Navbar({ user, setUser, cart = [] }) {
                   <NavLink to="/admin/generate-report" onClick={() => setDropdownOpen(false)}>📄 Generate Report</NavLink>
                 </div>
               </div>
-            </div>
+            </>
           )}
 
-          {/* Regular User Navigation Items */}
           {!isAdmin && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "20px" }}>
+            <>
               <NavLink to="/home" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>🏠</span>
                 <span>Home</span>
@@ -360,19 +489,30 @@ export default function Navbar({ user, setUser, cart = [] }) {
                 <span>📋</span>
                 <span>Orders</span>
               </NavLink>
-            </div>
+            </>
           )}
         </div>
 
-        {/* Right Section - Avatar and Logout Button */}
-        <div className="admin-profile">
-          <img
-            src={user?.profilePhoto || "https://i.pravatar.cc/40"}
-            alt="Profile"
-            className="admin-avatar"
-            onClick={() => navigate("/profile")}
-            style={{ cursor: "pointer" }}
-          />
+        {/* Right Section - Profile and Logout */}
+        <div className="right-section">
+          {/* Profile Section */}
+          <div className="profile-section" onClick={() => navigate("/profile")}>
+            <div className="profile-info">
+              <p className="welcome-text">Welcome,</p>
+              <p className="user-name">{welcomeName}</p>
+              <p className="user-role">{isAdmin ? "Administrator" : "Customer"}</p>
+            </div>
+            <img
+              src={displayPhoto}
+              alt="Profile"
+              className="profile-avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://i.pravatar.cc/150";
+              }}
+            />
+          </div>
+          
           <button onClick={logout} className="logout-btn-nav">
             Logout
           </button>
