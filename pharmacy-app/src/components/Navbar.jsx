@@ -4,15 +4,15 @@ import { useState, useEffect, useRef } from "react";
 export default function Navbar({ user, setUser, cart = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
-  
-const logout = () => {
-  localStorage.removeItem("user");
-  setUser(null);
 
-  setTimeout(() => {
-    navigate("/");
-  }, 0);
-};
+  const logout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+
+    setTimeout(() => {
+      navigate("/");
+    }, 0);
+  };
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -259,24 +259,26 @@ const logout = () => {
         width: "100%"
       }}>
         {/* Left Section - Logo, Admin Badge, and Navigation Items */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "space-between", width: "100%" }}>
           {/* Logo */}
-          <h2 style={{ color: "#0F4454", margin: 0, fontSize: "20px" }}>💊 PharmaCare</h2>
-          
-          {/* Admin Badge with Separator */}
-          {isAdmin && (
-            <>
-              <div className="separator"></div>
-              <span 
-                className="admin-badge clickable" 
-                onClick={goToAdminDashboard}
-                style={{ cursor: "pointer" }}
-                title="Click to go to Admin Dashboard"
-              >
-                👑 Admin Panel
-              </span>
-            </>
-          )}
+          <div style={{display: "flex"}}>
+            <h2 style={{ color: "#0F4454", margin: 0, fontSize: "20px" }}>💊 PharmaCare</h2>
+
+            {/* Admin Badge with Separator */}
+            {isAdmin && (
+              <>
+                <div className="separator"></div>
+                <span
+                  className="admin-badge clickable"
+                  onClick={goToAdminDashboard}
+                  style={{ cursor: "pointer" }}
+                  title="Click to go to Admin Dashboard"
+                >
+                  👑 Admin Panel
+                </span>
+              </>
+            )}
+          </div>
 
           {/* Navigation Items */}
           {isAdmin && (
@@ -310,8 +312,8 @@ const logout = () => {
 
               {/* Quick Actions Dropdown */}
               <div className="nav-dropdown" ref={dropdownRef}>
-                <div 
-                  className="nav-item nav-icon" 
+                <div
+                  className="nav-item nav-icon"
                   style={{ cursor: "pointer" }}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
@@ -336,7 +338,7 @@ const logout = () => {
                 <span>🏠</span>
                 <span>Home</span>
               </NavLink>
-              
+
               <NavLink to="/inventory" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>🛍️</span>
                 <span>Shop</span>
@@ -364,9 +366,9 @@ const logout = () => {
 
         {/* Right Section - Avatar and Logout Button */}
         <div className="admin-profile">
-          <img 
-            src={user?.profilePhoto || "https://i.pravatar.cc/40"} 
-            alt="Profile" 
+          <img
+            src={user?.profilePhoto || "https://i.pravatar.cc/40"}
+            alt="Profile"
             className="admin-avatar"
             onClick={() => navigate("/profile")}
             style={{ cursor: "pointer" }}
