@@ -75,7 +75,20 @@ export default function LoginModern({ setUser }) {
             <label style={{fontSize: 14, color: "#7b8794"}}>
               <input type="checkbox" style={{marginRight: 6}} /> Remember me
             </label>
-            <Link to="#" style={{fontSize: 14, color: "#7b8794", textDecoration: "underline"}}>Forgot password?</Link>
+            <Link
+              to="/forgot-password"
+              onClick={(e) => {
+                if (!userId) {
+                  e.preventDefault();
+                  alert("Please enter Email or Mobile first");
+                } else {
+                  navigate(`/forgot-password?userId=${userId}`);
+                }
+              }}
+              style={{ fontSize: 14, color: "#7b8794", textDecoration: "underline" }}
+            >
+              Forgot password?
+            </Link>
           </div>
           <button type="submit" style={{width: "100%", padding: 16, borderRadius: 16, background: "#e0e5ec", color: "#2d3748", fontWeight: 700, fontSize: 17, border: "none", boxShadow: "4px 4px 16px #d1d9e6, -4px -4px 16px #fff", marginBottom: 18, transition: 'box-shadow 0.2s'}}>Sign In</button>
         </form>

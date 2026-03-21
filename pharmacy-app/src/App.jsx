@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginModern from "./pages/LoginModern";
+import ForgotPassword from "./pages/ForgotPassword";
 import SignupModern from "./pages/SignupModern";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
@@ -138,6 +139,7 @@ function AppContent() {
         {/* Authentication Routes */}
         <Route path="/login" element={<Navigate to="/login/customer" replace />} />
         <Route path="/login/:role" element={<LoginModern setUser={setUser} />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/signup/:role" element={<SignupModern />} />
         <Route path="/" element={<Landing />} />
 
