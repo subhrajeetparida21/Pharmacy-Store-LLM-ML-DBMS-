@@ -5,14 +5,12 @@ export default function Navbar({ user, setUser, cart = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [profilePhoto, setProfilePhoto] = useState(null);
-  const [adminName, setAdminName] = useState("");
+  const [userName, setUserName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const logout = () => {
-    // Don't clear adminProfile or persistedProfilePhoto
-    // Only clear session-related data
     localStorage.removeItem("user");
     setUser(null);
-
     setTimeout(() => {
       navigate("/");
     }, 0);
@@ -21,62 +19,78 @@ export default function Navbar({ user, setUser, cart = [] }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Load profile photo and admin name from localStorage
+  // Load profile data based on user type
   useEffect(() => {
     const loadProfileData = () => {
-      // Load profile photo
+      if (!user) return;
+      
+      const adminStatus = user?.isAdmin === true || user?.role === "admin";
+      setIsAdmin(adminStatus);
+      
       let photo = null;
+      let name = "";
       
-      // First check if user object has profilePhoto
-      if (user?.profilePhoto) {
-        photo = user.profilePhoto;
-      }
-      
-      // Then check adminProfile
-      if (!photo) {
+      if (adminStatus) {
+        // Load ADMIN data
         const adminProfile = localStorage.getItem("adminProfile");
         if (adminProfile) {
           const profile = JSON.parse(adminProfile);
-          photo = profile.profilePhoto;
-          // Also get admin name
-          if (profile.fullName) {
-            setAdminName(profile.fullName.split(" ")[0]);
-          }
+          photo = profile.profilePhoto || null;
+          name = profile.fullName ? profile.fullName.split(" ")[0] : "";
+        }
+        
+        // If no admin profile, use user data
+        if (!photo && user?.profilePhoto) {
+          photo = user.profilePhoto;
+        }
+        if (!name && user?.name) {
+          name = user.name.split(" ")[0];
+        }
+        
+        // Set default admin photo if still nothing
+        if (!photo) {
+          photo = "https://i.pravatar.cc/150?img=7";
+        }
+        if (!name) {
+          name = "Admin";
+        }
+      } else {
+        // Load CUSTOMER data
+        const customerProfile = localStorage.getItem("customerProfile");
+        if (customerProfile) {
+          const profile = JSON.parse(customerProfile);
+          photo = profile.profilePhoto || null;
+          name = profile.fullName ? profile.fullName.split(" ")[0] : "";
+        }
+        
+        // If no customer profile, use user data
+        if (!photo && user?.profilePhoto) {
+          photo = user.profilePhoto;
+        }
+        if (!name && user?.name) {
+          name = user.name.split(" ")[0];
+        }
+        
+        // Set default customer photo if still nothing
+        if (!photo) {
+          photo = "https://i.pravatar.cc/150?img=8";
+        }
+        if (!name) {
+          name = "Customer";
         }
       }
       
-      // Finally check persistedProfilePhoto
-      if (!photo) {
-        photo = localStorage.getItem("persistedProfilePhoto");
-      }
-      
       setProfilePhoto(photo);
-      
-      // Load admin name from user object if not already set
-      if (!adminName && user?.name) {
-        setAdminName(user.name.split(" ")[0]);
-      }
+      setUserName(name);
     };
     
     loadProfileData();
-    
-    // Listen for storage changes (when profile is updated)
-    const handleStorageChange = (e) => {
-      if (e.key === "adminProfile" || e.key === "persistedProfilePhoto" || e.key === "user") {
-        loadProfileData();
-      }
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [user, adminName]);
+  }, [user]);
 
-  // Navigate to admin dashboard
   const goToAdminDashboard = () => {
     navigate('/admin');
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -92,20 +106,7 @@ export default function Navbar({ user, setUser, cart = [] }) {
 
   if (!user) return null;
 
-  // ✅ Total items count (only for regular users)
-  const totalItems = cart.reduce(
-    (sum, item) => sum + (item.qty || 1),
-    0
-  );
-
-  // Check if user is admin
-  const isAdmin = user?.isAdmin === true || user?.role === "admin";
-
-  // Get the profile photo to display
-  const displayPhoto = profilePhoto || user?.profilePhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150";
-  
-  // Get the welcome name
-  const welcomeName = adminName || (user?.name ? user.name.split(" ")[0] : "User");
+  const totalItems = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
 
   return (
     <>
@@ -359,16 +360,6 @@ export default function Navbar({ user, setUser, cart = [] }) {
           align-items: center;
           gap: 20px;
         }
-
-        @keyframes photoUpdate {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-
-        .profile-avatar-updated {
-          animation: photoUpdate 0.3s ease;
-        }
       `}</style>
 
       <nav style={{
@@ -393,7 +384,6 @@ export default function Navbar({ user, setUser, cart = [] }) {
             <h2 className="logo-text">PharmaCare</h2>
           </div>
           
-          {/* Admin Badge - Now on left side after logo */}
           {isAdmin && (
             <>
               <div className="separator"></div>
@@ -413,13 +403,10 @@ export default function Navbar({ user, setUser, cart = [] }) {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {isAdmin && (
             <>
-              {/* Analytics */}
               <NavLink to="/admin/analytics" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span>📊</span>
                 <span>Analytics</span>
               </NavLink>
-
-              {/* Alerts */}
               <NavLink to="/admin/alerts" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span style={{ position: "relative" }}>
                   🔔
@@ -427,20 +414,14 @@ export default function Navbar({ user, setUser, cart = [] }) {
                 </span>
                 <span>Alerts</span>
               </NavLink>
-
-              {/* AI Recommendations */}
               <NavLink to="/admin/ai-recommendations" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span>🤖</span>
                 <span>AI Insights</span>
               </NavLink>
-
-              {/* Order from Seller */}
               <NavLink to="/admin/order-from-seller" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
                 <span>📦</span>
                 <span>Order from Seller</span>
               </NavLink>
-
-              {/* Quick Actions Dropdown */}
               <div className="nav-dropdown" ref={dropdownRef}>
                 <div
                   className="nav-item nav-icon"
@@ -467,12 +448,10 @@ export default function Navbar({ user, setUser, cart = [] }) {
                 <span>🏠</span>
                 <span>Home</span>
               </NavLink>
-
               <NavLink to="/inventory" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>🛍️</span>
                 <span>Shop</span>
               </NavLink>
-
               <NavLink to="/cart" className={({ isActive }) => `nav-item cart-link ${isActive ? 'active' : ''}`}>
                 <span style={{ position: "relative" }}>
                   🛒
@@ -484,7 +463,6 @@ export default function Navbar({ user, setUser, cart = [] }) {
                 </span>
                 <span>Cart</span>
               </NavLink>
-
               <NavLink to="/orders" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>📋</span>
                 <span>Orders</span>
@@ -495,24 +473,22 @@ export default function Navbar({ user, setUser, cart = [] }) {
 
         {/* Right Section - Profile and Logout */}
         <div className="right-section">
-          {/* Profile Section */}
           <div className="profile-section" onClick={() => navigate("/profile")}>
             <div className="profile-info">
               <p className="welcome-text">Welcome,</p>
-              <p className="user-name">{welcomeName}</p>
+              <p className="user-name">{userName}</p>
               <p className="user-role">{isAdmin ? "Administrator" : "Customer"}</p>
             </div>
             <img
-              src={displayPhoto}
+              src={profilePhoto}
               alt="Profile"
               className="profile-avatar"
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = "https://i.pravatar.cc/150";
+                e.target.src = isAdmin ? "https://i.pravatar.cc/150?img=7" : "https://i.pravatar.cc/150?img=8";
               }}
             />
           </div>
-          
           <button onClick={logout} className="logout-btn-nav">
             Logout
           </button>

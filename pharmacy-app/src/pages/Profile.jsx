@@ -5,32 +5,66 @@ import "../Dashboard.css";
 export default function Profile({ user, setUser }) {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("");
-  const [adminPhoto, setAdminPhoto] = useState(null);
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Load admin data from localStorage with priority
-    const loadAdminData = () => {
-      // First try to load from adminProfile (most recent profile data)
-      const savedProfile = localStorage.getItem("adminProfile");
-      if (savedProfile) {
-        const profile = JSON.parse(savedProfile);
-        setFullName(profile.fullName || "");
-        setEmail(profile.email || "");
-        setPhone(profile.phone || "");
-        setAdminPhoto(profile.profilePhoto || null);
-        setPhotoPreview(profile.profilePhoto || null);
-        if (profile.fullName) {
-          setAdminName(profile.fullName.split(" ")[0]);
+    // Check if user is admin
+    const checkUserType = () => {
+      const currentUser = localStorage.getItem("user");
+      if (currentUser) {
+        const u = JSON.parse(currentUser);
+        const adminStatus = u?.isAdmin === true || u?.role === "admin";
+        setIsAdmin(adminStatus);
+        return adminStatus;
+      }
+      return false;
+    };
+
+    const adminStatus = checkUserType();
+    
+    // Load profile data based on user type
+    const loadProfileData = () => {
+      if (adminStatus) {
+        // Load ADMIN data from adminProfile
+        const savedProfile = localStorage.getItem("adminProfile");
+        if (savedProfile) {
+          const profile = JSON.parse(savedProfile);
+          setFullName(profile.fullName || "");
+          setEmail(profile.email || "");
+          setPhone(profile.phone || "");
+          setProfilePhoto(profile.profilePhoto || null);
+          setPhotoPreview(profile.profilePhoto || null);
+          if (profile.fullName) {
+            setAdminName(profile.fullName.split(" ")[0]);
+          }
+          console.log("Loaded ADMIN profile data");
+          return;
         }
-        return;
+      } else {
+        // Load CUSTOMER data from customerProfile
+        const savedProfile = localStorage.getItem("customerProfile");
+        if (savedProfile) {
+          const profile = JSON.parse(savedProfile);
+          setFullName(profile.fullName || "");
+          setEmail(profile.email || "");
+          setPhone(profile.phone || "");
+          setProfilePhoto(profile.profilePhoto || null);
+          setPhotoPreview(profile.profilePhoto || null);
+          if (profile.fullName) {
+            setAdminName(profile.fullName.split(" ")[0]);
+          }
+          console.log("Loaded CUSTOMER profile data");
+          return;
+        }
       }
 
-      // If no adminProfile, try to load from user data
+      // Fallback to user data
       const currentUser = localStorage.getItem("user");
       if (currentUser) {
         const u = JSON.parse(currentUser);
@@ -38,28 +72,24 @@ export default function Profile({ user, setUser }) {
         setEmail(u.email || "");
         setPhone(u.phone || "");
         if (u.profilePhoto) {
-          setAdminPhoto(u.profilePhoto);
+          setProfilePhoto(u.profilePhoto);
           setPhotoPreview(u.profilePhoto);
         }
         if (u.name) {
           setAdminName(u.name.split(" ")[0]);
         }
-      }
-      
-      // If still no photo, check for persisted profile photo
-      const persistedPhoto = localStorage.getItem("persistedProfilePhoto");
-      if (persistedPhoto && !adminPhoto) {
-        setAdminPhoto(persistedPhoto);
-        setPhotoPreview(persistedPhoto);
+        console.log("Loaded fallback user data");
       }
     };
     
-    loadAdminData();
+    loadProfileData();
     
-    // Add event listener for storage changes (in case profile is updated from another tab)
+    // Add event listener for storage changes
     const handleStorageChange = (e) => {
-      if (e.key === "adminProfile" || e.key === "user" || e.key === "persistedProfilePhoto") {
-        loadAdminData();
+      if (adminStatus && e.key === "adminProfile") {
+        loadProfileData();
+      } else if (!adminStatus && e.key === "customerProfile") {
+        loadProfileData();
       }
     };
     
@@ -85,25 +115,16 @@ export default function Profile({ user, setUser }) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result;
-        setAdminPhoto(base64String);
+        setProfilePhoto(base64String);
         setPhotoPreview(base64String);
         
-        // Immediately save the photo to persistent storage
-        localStorage.setItem("persistedProfilePhoto", base64String);
-        
-        // Also update any open profile data
-        const currentAdminProfile = localStorage.getItem("adminProfile");
-        if (currentAdminProfile) {
-          const profile = JSON.parse(currentAdminProfile);
-          profile.profilePhoto = base64String;
-          localStorage.setItem("adminProfile", JSON.stringify(profile));
-        }
-        
-        const currentUser = localStorage.getItem("user");
-        if (currentUser) {
-          const userData = JSON.parse(currentUser);
-          userData.profilePhoto = base64String;
-          localStorage.setItem("user", JSON.stringify(userData));
+        // Immediately save the photo to appropriate storage
+        if (isAdmin) {
+          localStorage.setItem("currentAdminPhoto", base64String);
+          console.log("Saved admin photo to currentAdminPhoto");
+        } else {
+          localStorage.setItem("currentCustomerPhoto", base64String);
+          console.log("Saved customer photo to currentCustomerPhoto");
         }
         
         // Update navbar logo in real-time
@@ -135,42 +156,42 @@ export default function Profile({ user, setUser }) {
       fullName,
       email,
       phone,
-      profilePhoto: adminPhoto,
+      profilePhoto: profilePhoto,
       lastUpdated: new Date().toISOString()
     };
     
-    // Save to adminProfile (main profile storage)
-    localStorage.setItem("adminProfile", JSON.stringify(profileData));
-    
-    // Save to persistent photo storage separately
-    if (adminPhoto) {
-      localStorage.setItem("persistedProfilePhoto", adminPhoto);
+    // Save to appropriate storage based on user type
+    if (isAdmin) {
+      // Save to ADMIN storage
+      localStorage.setItem("adminProfile", JSON.stringify(profileData));
+      if (profilePhoto) {
+        localStorage.setItem("currentAdminPhoto", profilePhoto);
+      }
+      console.log("Saved to ADMIN profile:", profileData);
+    } else {
+      // Save to CUSTOMER storage
+      localStorage.setItem("customerProfile", JSON.stringify(profileData));
+      if (profilePhoto) {
+        localStorage.setItem("currentCustomerPhoto", profilePhoto);
+      }
+      console.log("Saved to CUSTOMER profile:", profileData);
     }
     
-    // Update the user object in localStorage if it exists
+    // Update the user object in localStorage
     const currentUser = localStorage.getItem("user");
     if (currentUser) {
       const userData = JSON.parse(currentUser);
       userData.name = fullName;
       userData.email = email;
       userData.phone = phone;
-      userData.profilePhoto = adminPhoto;
+      userData.profilePhoto = profilePhoto;
       localStorage.setItem("user", JSON.stringify(userData));
+      console.log("Updated user object:", userData);
       
       // Update parent component state if setUser is provided
       if (setUser) {
         setUser(userData);
       }
-    } else {
-      // If no user exists, create one
-      const newUserData = {
-        name: fullName,
-        email: email,
-        phone: phone,
-        profilePhoto: adminPhoto,
-        isLoggedIn: false
-      };
-      localStorage.setItem("user", JSON.stringify(newUserData));
     }
     
     // Update admin name for sidebar display
@@ -178,7 +199,7 @@ export default function Profile({ user, setUser }) {
       setAdminName(fullName.split(" ")[0]);
     }
     
-    setSavedMessage("✅ Profile saved successfully!");
+    setSavedMessage(`✅ ${isAdmin ? "Admin" : "Customer"} profile saved successfully!`);
     setTimeout(() => setSavedMessage(""), 3000);
   };
 
@@ -186,14 +207,23 @@ export default function Profile({ user, setUser }) {
     navigate(-1);
   };
 
+  // Get the display photo from appropriate source
+  const getDisplayPhoto = () => {
+    if (isAdmin) {
+      return profilePhoto || localStorage.getItem("currentAdminPhoto") || "https://i.pravatar.cc/150?img=7";
+    } else {
+      return profilePhoto || localStorage.getItem("currentCustomerPhoto") || "https://i.pravatar.cc/150?img=8";
+    }
+  };
+
   return (
     <div className="wrapper">
-      {/* Sidebar with updated logo section */}
+      {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header" style={{ textAlign: "center", marginBottom: "20px" }}>
           <div className="navbar-logo" style={{ marginBottom: "10px" }}>
             <img 
-              src={adminPhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"} 
+              src={getDisplayPhoto()} 
               alt="Logo" 
               className="sidebar-logo-img"
               style={{ 
@@ -220,12 +250,12 @@ export default function Profile({ user, setUser }) {
 
       {/* Main */}
       <div className="main">
-        {/* Topbar with user avatar */}
+        {/* Topbar */}
         <div className="topbar">
-          <h2>👤 User Profile</h2>
+          <h2>👤 {isAdmin ? "Admin Profile" : "Customer Profile"}</h2>
           <div className="user-info" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <img 
-              src={adminPhoto || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"} 
+              src={getDisplayPhoto()} 
               alt="User Avatar" 
               className="topbar-avatar"
               style={{ 
@@ -236,21 +266,27 @@ export default function Profile({ user, setUser }) {
                 border: "2px solid #0ea5e9"
               }} 
             />
-            <span style={{ fontWeight: "500" }}>{adminName || "User"}</span>
+            <span style={{ fontWeight: "500" }}>{adminName || (isAdmin ? "Admin" : "Customer")}</span>
           </div>
         </div>
 
         {/* Profile Card */}
         <div style={{ maxWidth: "600px", margin: "30px auto", background: "white", padding: "30px", borderRadius: "12px", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}>
-          <h2 style={{ color: "#0F4454", marginBottom: "20px" }}>Profile Information</h2>
+          <h2 style={{ color: "#0F4454", marginBottom: "20px" }}>
+            {isAdmin ? "Admin Profile Information" : "Customer Profile Information"}
+          </h2>
 
-          {savedMessage && <div style={{ background: "#dcfce7", color: "#166534", padding: "12px", borderRadius: "8px", marginBottom: "20px", textAlign: "center" }}>{savedMessage}</div>}
+          {savedMessage && (
+            <div style={{ background: "#dcfce7", color: "#166534", padding: "12px", borderRadius: "8px", marginBottom: "20px", textAlign: "center" }}>
+              {savedMessage}
+            </div>
+          )}
 
           {/* Profile Photo Upload */}
           <div style={{ textAlign: "center", marginBottom: "30px" }}>
             <div style={{ position: "relative", display: "inline-block" }}>
               <img
-                src={photoPreview || localStorage.getItem("persistedProfilePhoto") || "https://i.pravatar.cc/150"}
+                src={photoPreview || getDisplayPhoto()}
                 alt="Profile"
                 style={{ 
                   width: "120px", 
