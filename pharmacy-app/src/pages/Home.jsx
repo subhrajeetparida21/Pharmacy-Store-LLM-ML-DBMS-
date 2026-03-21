@@ -15,10 +15,12 @@ const mockMedicines = [
   { id: 4, name: "Cough Syrup", category: "Cough & Cold", price: 40, discount: 8 },
 ];
 
-export default function Home({ cart, addToCart }) {
+export default function Home({ cart, addToCart, orders = [] }) {
   const [user, setUser] = useState(null);
   const [addedId, setAddedId] = useState(null); // 🔥 track which item added
   const navigate = useNavigate();
+  const customerOrders = (orders || []).filter(o => o.userId && user?.id && o.userId === user.id);
+  const openOrders = customerOrders.filter(o => o.status?.toLowerCase() !== "delivered");
 
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user"));
@@ -47,6 +49,24 @@ export default function Home({ cart, addToCart }) {
       <p style={{ fontSize: '1.1rem', color: '#519FAD', marginBottom: 32 }}>
         Find trusted medicines by category
       </p>
+
+      {(openOrders || []).length > 0 ? (
+        <div style={{ background: '#fff', borderRadius: 16, padding: 20, marginBottom: 28, boxShadow: '0 2px 16px rgba(0,0,0,0.08)' }}>
+          <div style={{ fontWeight: 700, color: '#0F4454', marginBottom: 8 }}>Your Active Order</div>
+          {openOrders.map(order => (
+            <div key={order.id} style={{ padding: '10px 0', borderBottom: '1px solid #e2e8f0' }}>
+              <div><b>Order #{order.id}</b> - {order.status}</div>
+              <div>Delivery: {order.deliveryPartner || 'Not assigned yet'}</div>
+              <div>Items: {order.items.map(i => i.name).join(', ')}</div>
+              <div style={{ color: '#64748b' }}>Total ₹{order.total}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ marginBottom: 28, color: '#64748b' }}>
+          No current active orders yet.
+        </div>
+      )}
 
       {/* Categories */}
       <div style={{ display: 'flex', gap: 24, marginBottom: 32, flexWrap: 'wrap' }}>

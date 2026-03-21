@@ -11,7 +11,19 @@ import Landing from "./pages/Landing";
 import Inventory from "./pages/Inventory";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
-import AdminDashboard from "./pages/AdminDashboard";
+import Dashboard from "./Dashboard";
+import DeliveryTeam from "./DeliveryTeam";
+import OrderFromSeller from "./components/OrderFromSeller"; // Import the new component
+import Profile from "./pages/Profile"; // Import Profile page
+
+// Import admin page components (create these if needed)
+import Analytics from "./pages/Analytics";
+import Alerts from "./pages/Alerts";
+import AIInsights from "./pages/AIInsights";
+import Restock from "./Restock";
+import BulkDiscount from "./BulkDiscount";
+import EmergencyOrder from "./EmergencyOrder";
+import GenerateReport from "./GenerateReport";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -20,7 +32,11 @@ function AppContent() {
   });
 
   const [medicines, setMedicines] = useState([
-    { id: 1, name: "Paracetamol", price: 20, stock: 5 }
+    { id: 1, name: "Paracetamol", price: 20, stock: 5 },
+    { id: 2, name: "Ibuprofen", price: 30, stock: 10 },
+    { id: 3, name: "Vitamin C", price: 15, stock: 8 },
+    { id: 4, name: "Cough Syrup", price: 45, stock: 6 },
+    { id: 5, name: "Antibiotic", price: 60, stock: 4 },
   ]);
 
   const [cart, setCart] = useState(() => {
@@ -28,11 +44,29 @@ function AppContent() {
     return stored ? JSON.parse(stored) : [];
   });
 
-  const [orders, setOrders] = useState(JSON.parse(localStorage.getItem("orders")) || []);
+  const [orders, setOrders] = useState(() => {
+    const stored = localStorage.getItem("orders");
+    return stored ? JSON.parse(stored) : [];
+  });
 
-  const [deliveryPeople, setDeliveryPeople] = useState([
-    { id: 1, name: "Ravi", orders: 0, phone: "9876543210" }
-  ]);
+  const [deliveryPeople, setDeliveryPeople] = useState(() => {
+    const stored = localStorage.getItem("deliveryPeople");
+    return stored
+      ? JSON.parse(stored)
+      : [
+          { id: 1, name: "Ravi Kumar", orders: 5, phone: "9876543210" },
+          { id: 2, name: "Priya Sharma", orders: 3, phone: "9876543211" },
+          { id: 3, name: "Amit Patel", orders: 7, phone: "9876543212" }
+        ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("deliveryPeople", JSON.stringify(deliveryPeople));
+  }, [deliveryPeople]);
+
+  useEffect(() => {
+    localStorage.setItem("orders", JSON.stringify(orders));
+  }, [orders]);
 
   // Sync user across tabs
   useEffect(() => {
@@ -88,7 +122,7 @@ function AppContent() {
 
   const location = useLocation();
 
-  // ✅ FIXED NAVBAR LOGIC
+  // NAVBAR LOGIC - Hide navbar on landing, login, and signup pages
   const hideNavbar =
     location.pathname === "/" ||
     location.pathname.startsWith("/login") ||
@@ -96,21 +130,23 @@ function AppContent() {
 
   return (
     <>
-     {user && !hideNavbar && (
-  <Navbar user={user} setUser={setUser} cart={cart} />
-)}
+      {user && !hideNavbar && (
+        <Navbar user={user} setUser={setUser} cart={cart} />
+      )}
 
       <Routes>
+        {/* Authentication Routes */}
         <Route path="/login" element={<Navigate to="/login/customer" replace />} />
-        <Route path="/login/:role" element={<LoginModern />} />
+        <Route path="/login/:role" element={<LoginModern setUser={setUser} />} />
         <Route path="/signup/:role" element={<SignupModern />} />
         <Route path="/" element={<Landing />} />
 
+        {/* Customer Routes */}
         <Route
           path="/home"
           element={
             <ProtectedRoute user={user}>
-              <Home cart={cart} addToCart={addToCart} />
+              <Home cart={cart} addToCart={addToCart} orders={orders} />
             </ProtectedRoute>
           }
         />
@@ -134,7 +170,7 @@ function AppContent() {
                 medicines={medicines}
                 setMedicines={setMedicines}
                 setOrders={setOrders}
-                orders = {orders}
+                orders={orders}
                 deliveryPeople={deliveryPeople}
                 setDeliveryPeople={setDeliveryPeople}
                 addToCart={addToCart}
@@ -148,23 +184,147 @@ function AppContent() {
           path="/orders"
           element={
             <ProtectedRoute user={user}>
-              <Orders orders={orders} />
+              <Orders orders={orders} setOrders={setOrders} deliveryPeople={deliveryPeople} />
             </ProtectedRoute>
           }
         />
 
+        {/* Profile Route */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute user={user}>
+              <Profile user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Dashboard Routes */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute user={user} role="admin">
-              <AdminDashboard
+            <ProtectedRoute user={user} requiredRole="admin">
+              <Dashboard
+                setUser={setUser}
                 medicines={medicines}
                 setMedicines={setMedicines}
                 deliveryPeople={deliveryPeople}
                 setDeliveryPeople={setDeliveryPeople}
                 orders={orders}
+                setOrders={setOrders}
               />
             </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Analytics Route */}
+        <Route
+          path="/admin/analytics"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Alerts Route */}
+        <Route
+          path="/admin/alerts"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <Alerts />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin AI Insights Route */}
+        <Route
+          path="/admin/ai-recommendations"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <AIInsights />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Order from Seller Route */}
+        <Route
+          path="/admin/order-from-seller"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <OrderFromSeller />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Restock Route */}
+        <Route
+          path="/admin/restock"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <Restock medicines={medicines} setMedicines={setMedicines} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Bulk Discount Route */}
+        <Route
+          path="/admin/bulk-discount"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <BulkDiscount medicines={medicines} setMedicines={setMedicines} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Emergency Order Route */}
+        <Route
+          path="/admin/emergency-order"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <EmergencyOrder medicines={medicines} setMedicines={setMedicines} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Generate Report Route */}
+        <Route
+          path="/admin/generate-report"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <GenerateReport orders={orders} medicines={medicines} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Delivery Team Management Route (Admin only) */}
+        <Route
+          path="/delivery-team"
+          element={
+            <ProtectedRoute user={user} requiredRole="admin">
+              <DeliveryTeam
+                deliveryPeople={deliveryPeople}
+                setDeliveryPeople={setDeliveryPeople}
+                orders={orders}
+                setOrders={setOrders}
+              />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all - redirect to home or landing based on auth */}
+        <Route
+          path="*"
+          element={
+            user ? (
+              user.role === "admin" ? (
+                <Navigate to="/admin" replace />
+              ) : (
+                <Navigate to="/home" replace />
+              )
+            ) : (
+              <Navigate to="/" replace />
+            )
           }
         />
       </Routes>
@@ -174,7 +334,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <AppContent />
     </BrowserRouter>
   );

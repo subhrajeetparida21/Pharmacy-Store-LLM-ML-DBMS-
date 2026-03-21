@@ -51,8 +51,11 @@ export default function Cart({
     if (stockError) return;
   
     // ✅ CREATE ORDER FIRST
+    const currentUser = JSON.parse(localStorage.getItem("user")) || {};
     const newOrder = {
       id: Date.now(),
+      userId: currentUser.id || null,
+      userName: currentUser.name || "Guest",
       items: [...cart],
       total: totalAmount,
       status: "Processing",

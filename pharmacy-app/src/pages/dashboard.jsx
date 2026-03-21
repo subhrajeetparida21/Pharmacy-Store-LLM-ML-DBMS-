@@ -1,6 +1,7 @@
+import "../Dashboard.css";
 import { useState } from "react";
 
-export default function AdminDashboard({
+export default function Dashboard({
   medicines,setMedicines,
   deliveryPeople,setDeliveryPeople,
   orders

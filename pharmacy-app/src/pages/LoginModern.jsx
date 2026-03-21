@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 
-export default function LoginModern() {
+export default function LoginModern({ setUser }) {
   const { role } = useParams();
   const navigate = useNavigate();
   const [loginMethod, setLoginMethod] = useState("password");
@@ -13,10 +13,14 @@ export default function LoginModern() {
     e.preventDefault();
     // UI only: No real authentication
     if (role === "admin") {
-      localStorage.setItem("user", JSON.stringify({ role: "admin", id: userId }));
+      const user = { role: "admin", id: userId };
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser?.(user);
       navigate("/admin");
     } else {
-      localStorage.setItem("user", JSON.stringify({ role: "customer", id: userId }));
+      const user = { role: "customer", id: userId };
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser?.(user);
       navigate("/home");
     }
   };
