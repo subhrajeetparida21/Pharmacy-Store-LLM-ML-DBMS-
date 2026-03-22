@@ -12,6 +12,8 @@ export default function ForgotPassword() {
   const [step, setStep] = useState(1);
   const [userId, setUserId] = useState(initialUserId);
   const [otp, setOtp] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -24,17 +26,32 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // ⏳ TIMER
+  // ⏳ AUTO CLEAR MESSAGE
   useEffect(() => {
     if (message || error) {
-      const timer = setTimeout(() => {
+      const t = setTimeout(() => {
         setMessage("");
         setError("");
-      }, 3000); // disappears after 3s
-  
-      return () => clearTimeout(timer);
+      }, 3000);
+      return () => clearTimeout(t);
     }
   }, [message, error]);
+
+  // ⏳ TIMER COUNTDOWN
+  useEffect(() => {
+    if (step !== 2) return;
+
+    if (timer === 0) {
+      setCanResend(true);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer, step]);
 
   // 💪 PASSWORD STRENGTH
   const getStrength = () => {
@@ -59,6 +76,11 @@ export default function ForgotPassword() {
       return;
     }
 
+    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(newOtp);
+
+    console.log("OTP:", newOtp); // 🔥 remove in production
+
     setMessage("OTP sent successfully");
     setStep(2);
     setTimer(30);
@@ -67,6 +89,11 @@ export default function ForgotPassword() {
 
   // 🔁 RESEND OTP
   const resendOtp = () => {
+    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    setGeneratedOtp(newOtp);
+
+    console.log("New OTP:", newOtp);
+
     setMessage("OTP resent successfully");
     setTimer(30);
     setCanResend(false);
@@ -75,10 +102,12 @@ export default function ForgotPassword() {
   // 🔐 VERIFY OTP
   const verifyOtp = () => {
     setError("");
-    if (otp !== "1234") {
+
+    if (otp !== generatedOtp) {
       setError("Invalid OTP");
       return;
     }
+
     setMessage("OTP verified");
     setStep(3);
   };
@@ -107,7 +136,6 @@ export default function ForgotPassword() {
       <div style={card}>
         <h2 style={title}>Reset Password</h2>
 
-        {/* MESSAGE */}
         {error && <div style={errorMsg}>{error}</div>}
         {message && <div style={successMsg}>{message}</div>}
 
@@ -157,7 +185,6 @@ export default function ForgotPassword() {
         {/* STEP 3 */}
         {step === 3 && (
           <>
-            {/* NEW PASSWORD */}
             <div style={inputWrap}>
               <input
                 type={showPassword ? "text" : "password"}
@@ -171,12 +198,10 @@ export default function ForgotPassword() {
               </span>
             </div>
 
-            {/* STRENGTH */}
             <div style={strengthText(getStrength())}>
               Strength: {getStrength()}
             </div>
 
-            {/* CONFIRM PASSWORD */}
             <div style={inputWrap}>
               <input
                 type={showConfirm ? "text" : "password"}
@@ -211,60 +236,57 @@ const container = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "#eef4fb"
+  background: "#eef4fb",
+  padding: "1rem"
 };
 
 const card = {
   background: "#ffffff",
-  padding: 30,
-  borderRadius: 20,
-  width: 340,
+  padding: "2rem",
+  borderRadius: "1.2rem",
+  width: "100%",
+  maxWidth: "380px",
   boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
 };
 
 const title = {
   textAlign: "center",
-  marginBottom: 20,
-  color: "#1a202c"
+  marginBottom: "1rem"
 };
 
 const input = {
-    width: "100%",
-    padding: "12px 40px 12px 12px", // space for icon
-    borderRadius: 10,
-    border: "1px solid #e2e8f0",
-    background: "#f8fafc",
-    boxSizing: "border-box" // 🔥 IMPORTANT
+  width: "100%",
+  padding: "12px 40px 12px 12px",
+  borderRadius: "10px",
+  border: "1px solid #e2e8f0",
+  background: "#f8fafc",
+  marginBottom: "12px",
+  boxSizing: "border-box"
 };
-  
 
 const inputWrap = {
   position: "relative",
-  marginBottom: 12
+  marginBottom: "12px"
 };
 
 const icon = {
   position: "absolute",
-  right: 12,
+  right: "12px",
   top: "50%",
   transform: "translateY(-50%)",
-  cursor: "pointer",
-  color: "#718096"
+  cursor: "pointer"
 };
 
 const btn = {
-    width: "100%",
-    padding: 12,
-    borderRadius: 10, // match input
-    border: "none",
-    background: "#2b6cb0",
-    color: "#fff",
-    fontWeight: "bold",
-    marginTop: 12,
-    cursor: "pointer",
-    boxSizing: "border-box" //  IMPORTANT
+  width: "100%",
+  padding: "12px",
+  borderRadius: "10px",
+  border: "none",
+  background: "#2b6cb0",
+  color: "#fff",
+  fontWeight: "bold",
+  cursor: "pointer"
 };
-
 
 const linkBtn = {
   border: "none",
@@ -275,39 +297,36 @@ const linkBtn = {
 };
 
 const timerText = {
-  fontSize: 14,
+  fontSize: "14px",
   color: "#718096"
 };
 
 const errorMsg = {
-    background: "#ffe5e5",
-    color: "#c53030",
-    padding: "10px 12px",
-    borderRadius: 8,
-    marginBottom: 12,
-    textAlign: "center",
-    fontSize: 14
-  };
-  
-  const successMsg = {
-    background: "#e6fffa",
-    color: "#2f855a",
-    padding: "10px 12px",
-    borderRadius: 8,
-    marginBottom: 12,
-    textAlign: "center",
-    fontSize: 14
-  };
+  background: "#ffe5e5",
+  color: "#c53030",
+  padding: "10px",
+  borderRadius: "8px",
+  marginBottom: "10px",
+  textAlign: "center"
+};
+
+const successMsg = {
+  background: "#e6fffa",
+  color: "#2f855a",
+  padding: "10px",
+  borderRadius: "8px",
+  marginBottom: "10px",
+  textAlign: "center"
+};
 
 const errorMsgSmall = {
   color: "#c53030",
-  fontSize: 13,
-  marginBottom: 8
+  fontSize: "13px"
 };
 
 const strengthText = (strength) => ({
-  fontSize: 13,
-  marginBottom: 10,
+  fontSize: "13px",
+  marginBottom: "10px",
   color:
     strength === "Strong"
       ? "green"

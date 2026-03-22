@@ -7,6 +7,7 @@ export default function Navbar({ user, setUser, cart = [] }) {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [userName, setUserName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -115,7 +116,6 @@ export default function Navbar({ user, setUser, cart = [] }) {
           text-decoration: none;
           color: #2d3748;
           font-weight: 600;
-          position: relative;
           padding: 8px 14px;
           transition: 0.3s;
           white-space: nowrap;
@@ -260,8 +260,8 @@ export default function Navbar({ user, setUser, cart = [] }) {
         .right-section {
           display: flex;
           align-items: center;
-          gap: 20px;
-          margin-right: 75px;
+          gap: 10px;
+          flex-shrink: 0; /* prevents squeezing */
         }
 
         .profile-section {
@@ -360,17 +360,100 @@ export default function Navbar({ user, setUser, cart = [] }) {
           align-items: center;
           gap: 20px;
         }
+
+       /* ================= BASE ================= */
+        .nav-center {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        /* Remove rigid spacing */
+        .right-section {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0; /* prevents squeezing */
+        }
+
+        /* ================= HAMBURGER ================= */
+        .hamburger {
+          display: none;
+          font-size: 24px;
+          background: none;
+          border: none;
+          cursor: pointer;
+        }
+
+        /* ===== TABLET ===== */
+        @media (max-width: 1100px) {
+
+          .nav-item span:last-child {
+            display: none; /* show only icons */
+          }
+
+          .profile-info {
+            display: none;
+          }
+        }
+
+        /* ===== SMALL LAPTOP ===== */
+        @media (max-width: 900px) {
+
+          .hamburger {
+            display: block;
+          }
+
+          .nav-center {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            background: white;
+            margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+          }
+
+          .nav-center.open {
+            display: flex;
+          }
+
+          .nav-item {
+            width: 100%;
+            padding: 12px 20px;
+          }
+        }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 600px) {
+
+          nav {
+            padding: 0.6rem 1rem;
+          }
+
+          .logo-text {
+            font-size: 16px;
+          }
+
+          .logout-btn-nav {
+            padding: 6px 10px;
+            font-size: 12px;
+          }
+        }
       `}</style>
 
       <nav style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        flexWrap: "wrap",
         padding: "0.8rem 2.5rem",
         background: "#f7fafd",
         boxShadow: "0 2px 12px rgba(224, 229, 236, 0.8)",
+        position:"sticky",
         minHeight: "60px",
-        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
@@ -400,7 +483,7 @@ export default function Navbar({ user, setUser, cart = [] }) {
         </div>
 
         {/* Center Section - Navigation Items */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div className={`nav-center ${menuOpen ? "open" : ""}`}>
           {isAdmin && (
             <>
               <NavLink to="/admin/analytics" className={({ isActive }) => `nav-item nav-icon ${isActive ? 'active' : ''}`}>
@@ -471,6 +554,10 @@ export default function Navbar({ user, setUser, cart = [] }) {
           )}
         </div>
 
+        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? "✖" : "☰"}
+        </button> 
+
         {/* Right Section - Profile and Logout */}
         <div className="right-section">
           <div className="profile-section" onClick={() => navigate("/profile")}>
@@ -495,11 +582,11 @@ export default function Navbar({ user, setUser, cart = [] }) {
         </div>
       </nav>
 
-      <style>{`
+      {/* <style>{`
         body {
-          padding-top: 70px;
+          padding-top: 100px;
         }
-      `}</style>
+      `}</style> */}
     </>
   );
 }
