@@ -7,7 +7,7 @@ const {
   MYSQL_HOST = "localhost",
   MYSQL_PORT = "3306",
   MYSQL_USER = "root",
-  MYSQL_PASSWORD = "mongodb", //enter your mysql password here
+  MYSQL_PASSWORD = "", //enter your mysql password here
   MYSQL_DATABASE = "pharmacy_app",
 } = process.env;
 
